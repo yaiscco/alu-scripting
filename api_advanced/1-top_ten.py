@@ -9,21 +9,40 @@ def top_ten(subreddit):
     '''Prints the top ten posts of a subreddit'''
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {
-        "User-Agent": "MyRedditBot/1.0 by api_advanced"
+        "User-Agent": "python:api_advanced:v1.0 (by /u/api_advanced)"
     }
     params = {"limit": 10}
-    response = requests.get(
-        url,
-        headers=headers,
-        params=params,
-        allow_redirects=False
-    )
+    try:
+        response = requests.get(
+            url,
+            headers=headers,
+            params=params,
+            allow_redirects=False
+        )
+    except Exception:
+        print(None)
+        return
+
+    if response.status_code == 301 or response.status_code == 302:
+        print(None)
+        return
+
     if response.status_code != 200:
         print(None)
         return
-    data = response.json().get("data", {}).get("children", [])
+
+    try:
+        results = response.json()
+    except Exception:
+        print(None)
+        return
+
+    data = results.get("data", {}).get("children", [])
     if not data:
         print(None)
         return
+
     for post in data:
-        print(post.get("data", {}).get("title"))
+        title = post.get("data", {}).get("title")
+        if title:
+            print(title)
